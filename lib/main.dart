@@ -9,6 +9,8 @@ void main() {
 
 Color clouds = HexColor("#ecf0f1");
 Color was = HexColor("#34495e");
+Color nephertis = HexColor('#27ae60');
+Color silver = HexColor('#bdc3c7');
 
 class HexColor extends Color {
   static int _getColor(String hex) {
@@ -17,6 +19,54 @@ class HexColor extends Color {
   }
 
   HexColor(final String hex) : super(_getColor(hex));
+}
+
+class PlayerDatas {
+  String name = "";
+  int score = 0;
+  PlayerDatas(String name, int score) {
+    this.name = name;
+    this.score = score;
+  }
+}
+
+class Players {
+  List<PlayerDatas> players = [];
+}
+
+List<Widget> datas(Players list, length) {
+  List<Widget> leaderboard = <Widget>[];
+  Color col = clouds;
+  //i<5, pass your dynamic limit as per your requirment
+  for (int i = 0; i < length; i++) {
+    int k = i + 1;
+
+    if (i % 2 == 0) {
+      col = clouds;
+    } else {
+      col = silver;
+    }
+    leaderboard.add(Container(
+        color: col,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text(
+              "#$k",
+              style: TextStyle(fontFamily: "Chalk", color: was),
+            ),
+            Text(
+              list.players[i].name,
+              style: TextStyle(fontFamily: "Chalk", color: was),
+            ),
+            Text(
+              list.players[i].score.toString(),
+              style: TextStyle(fontFamily: "Chalk", color: was),
+            )
+          ],
+        ))); //add any Widget in place of Text("Index $i")
+  }
+  return leaderboard; // all widget added now retrun the list here
 }
 
 MaterialColor generateMaterialColor(Color color) {
@@ -42,6 +92,7 @@ Color tintColor(Color color, double factor) => Color.fromRGBO(
     tintValue(color.green, factor),
     tintValue(color.blue, factor),
     1);
+
 int shadeValue(int value, double factor) =>
     max(0, min(value - (value * factor).round(), 255));
 
@@ -96,10 +147,11 @@ class Buttons {
 }
 
 class Fields {
-  static Widget CustomTextFormField(label, hint, icon, error) {
+  static Widget CustomTextFormField(label, hint, icon, error, controller) {
     return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: TextFormField(
+          controller: controller,
           decoration: InputDecoration(
               filled: true,
               fillColor: clouds,
@@ -133,13 +185,14 @@ class Fields {
   }
 }
 
+PlayerDatas player = PlayerDatas("", 0);
+
 class GeoQuest extends StatelessWidget {
   const GeoQuest({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    Color nephertis = HexColor('#27ae60');
     return MaterialApp(
       title: 'GeoQuest',
       theme: ThemeData(
@@ -159,6 +212,114 @@ class GeoQuest extends StatelessWidget {
   }
 }
 
+class LeaderboardPage extends StatefulWidget {
+  const LeaderboardPage({Key? key}) : super(key: key);
+
+  @override
+  State<LeaderboardPage> createState() => _LeaderboardPageState();
+}
+
+class _LeaderboardPageState extends State<LeaderboardPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: GestureDetector(
+        onHorizontalDragUpdate: (details) {
+          // Note: Sensitivity is integer used when you don't want to mess up vertical drag
+          if (details.delta.dx > 0) {
+            Navigator.pop(context, true);
+          }
+        },
+        child: const Leaderboard(),
+      ),
+      backgroundColor: nephertis,
+    );
+  }
+}
+
+class Leaderboard extends StatefulWidget {
+  const Leaderboard({Key? key}) : super(key: key);
+
+  @override
+  LeaderboardState createState() {
+    return LeaderboardState();
+  }
+}
+
+class LeaderboardState extends State<Leaderboard> {
+  Players players = Players();
+
+  @override
+  Widget build(BuildContext context) {
+    //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    for (int i = 0; i < 500; i++) {
+      players.players.add(PlayerDatas("$i", 500 - i));
+    }
+    //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // TODO : Lire le leaderboard ici
+
+    return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Text(
+              'SCORE :' + player.score.toString(),
+              style:
+                  TextStyle(fontFamily: 'Chalk', fontSize: 15, color: clouds),
+            ),
+            Image.asset('assets/images/logo_s.png'),
+          ]),
+          Center(
+            child: Text('LEADERBOARD',
+                style: TextStyle(fontFamily: "Chalk", color: clouds)),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(
+                "RANK",
+                style: TextStyle(fontFamily: "Chalk", color: silver),
+              ),
+              Text(
+                "USERNAME",
+                style: TextStyle(fontFamily: "Chalk", color: silver),
+              ),
+              Text(
+                "SCORE",
+                style: TextStyle(fontFamily: "Chalk", color: silver),
+              )
+            ],
+          ),
+          Expanded(
+              child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: was,
+                      width: 5,
+                    ),
+                  ),
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: datas(players, 500),
+                  ))),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: Buttons.OptionButton(() {
+                  Navigator.pop(context, true);
+                }),
+              )
+            ],
+          )
+        ]);
+  }
+}
+
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -169,8 +330,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    Color nephertis = HexColor('#27ae60');
-
     return Scaffold(
       body: GestureDetector(
         onHorizontalDragUpdate: (details) {
@@ -198,11 +357,10 @@ class Home extends StatefulWidget {
 class HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
-    String value = 1234567.toString();
     return Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Text(
-          'SCORE :' + value,
+          'SCORE :' + player.score.toString(),
           style: TextStyle(fontFamily: 'Chalk', fontSize: 15, color: clouds),
         ),
         Image.asset('assets/images/logo_s.png'),
@@ -213,7 +371,7 @@ class HomeState extends State<Home> {
         children: [
           Image.asset('assets/images/title.png'),
           Text(
-            'USERNAME',
+            player.name.toUpperCase(),
             style: TextStyle(
               fontFamily: 'Chalk',
               fontSize: 30,
@@ -242,7 +400,7 @@ class HomeState extends State<Home> {
           Buttons.SecondaryButton("Leaderboard", () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const SignUpPage()),
+              MaterialPageRoute(builder: (context) => const LeaderboardPage()),
             );
           })
         ],
@@ -253,7 +411,7 @@ class HomeState extends State<Home> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             child: Buttons.OptionButton(() {
-              //Navigator.pop(context, true);
+              Navigator.pop(context, true);
             }),
           )
         ],
@@ -305,12 +463,13 @@ class SignUp extends StatefulWidget {
 
 class SignUpState extends State<SignUp> {
   final _formKey = GlobalKey<FormState>();
+  final cEmail = TextEditingController();
+  final cUsername = TextEditingController();
+  final cPassword1 = TextEditingController();
+  final cPassword2 = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    Color clouds = HexColor("#ecf0f1");
-    Color was = HexColor("#34495e");
-
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
@@ -322,25 +481,30 @@ class SignUpState extends State<SignUp> {
               children: <Widget>[
                 Image.asset('assets/images/logo.png'),
                 Fields.CustomTextFormField('Email*', 'Entrez votre Email',
-                    Icons.mail, 'Email nécessaire'),
+                    Icons.mail, 'Email nécessaire', cEmail),
                 Fields.CustomTextFormField(
                     'Username*',
                     "Entrez votre nom d'utilisateur",
                     Icons.person,
-                    "Nom d'utilisateur nécessaire"),
+                    "Nom d'utilisateur nécessaire",
+                    cUsername),
                 Fields.CustomTextFormField(
                     'Password*',
                     'Entrez votre mot de passe',
                     Icons.key,
-                    'Mot de passe nécessaire'),
+                    'Mot de passe nécessaire',
+                    cPassword1),
                 Fields.CustomTextFormField(
                     'Password*',
                     'Réentrez votre mot de passe',
                     Icons.key,
-                    'Mot de passe nécessaire'),
+                    'Mot de passe nécessaire',
+                    cPassword2),
                 Buttons.PrimaryButton('Valider', () {
-                  if (_formKey.currentState!.validate()) {
+                  if (_formKey.currentState!.validate() &&
+                      cPassword1.text == cPassword2.text) {
                     //save the datas
+                    player.name = cUsername.text;
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('processing datas')),
                     );
@@ -356,7 +520,7 @@ class SignUpState extends State<SignUp> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               child: Buttons.OptionButton(() {
-                //Navigator.pop(context, true);
+                Navigator.pop(context, true);
               }),
             )
           ],
@@ -413,9 +577,8 @@ class SignInState extends State<SignIn> {
 
   @override
   Widget build(BuildContext context) {
-    Color clouds = HexColor("#ecf0f1");
-    Color was = HexColor("#34495e");
-
+    final cUsername = TextEditingController();
+    final cPassword = TextEditingController();
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
@@ -430,15 +593,19 @@ class SignInState extends State<SignIn> {
                   'Username*',
                   "Entrez votre nom d'utilisateur",
                   Icons.person,
-                  "Nom d'utilisateur nécessaire"),
+                  "Nom d'utilisateur nécessaire",
+                  cUsername),
               Fields.CustomTextFormField(
                   'Password*',
                   "Entrez votre mot de passe",
                   Icons.key,
-                  "Mot de passe nécessaire"),
+                  "Mot de passe nécessaire",
+                  cPassword),
               Buttons.PrimaryButton('Valider', () {
                 if (_formKey.currentState!.validate()) {
                   //save the datas
+                  player.name = cUsername.text;
+                  player.score = 1234567;
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const HomePage()),
@@ -460,7 +627,7 @@ class SignInState extends State<SignIn> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               child: Buttons.OptionButton(() {
-                //Navigator.pop(context, true);
+                Navigator.pop(context, true);
               }),
             )
           ],
