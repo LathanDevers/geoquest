@@ -8,6 +8,7 @@
 /home/lathan/work/projects/geoquest/geo_quest/build/linux/x64/debug/bundle/data/flutter_assets/assets/images/logo.jpg
 /home/lathan/work/projects/geoquest/geo_quest/build/linux/x64/debug/bundle/data/flutter_assets/assets/images/logo.png
 /home/lathan/work/projects/geoquest/geo_quest/build/linux/x64/debug/bundle/data/flutter_assets/assets/images/logo.svg
+/home/lathan/work/projects/geoquest/geo_quest/build/linux/x64/debug/bundle/data/flutter_assets/assets/images/ex1.png
 /home/lathan/work/projects/geoquest/geo_quest/build/linux/x64/debug/bundle/data/flutter_assets/assets/fonts/Chalk-Large.ttf
 /home/lathan/work/projects/geoquest/geo_quest/build/linux/x64/debug/bundle/data/flutter_assets/assets/fonts/Chalk-Medium.ttf
 /home/lathan/work/projects/geoquest/geo_quest/build/linux/x64/debug/bundle/data/flutter_assets/FontManifest.json

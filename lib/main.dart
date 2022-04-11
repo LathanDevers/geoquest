@@ -24,9 +24,25 @@ class HexColor extends Color {
 class PlayerDatas {
   String name = "";
   int score = 0;
+  Exercice currentEx = Exercice(-1, -1, []);
+
   PlayerDatas(String name, int score) {
     this.name = name;
     this.score = score;
+  }
+  void changeCurrentEx(Exercice currentEx) {
+    this.currentEx = currentEx;
+  }
+}
+
+class Exercice {
+  int typeEx = -1;
+  int noEx = -1;
+  List<double> datas = <double>[];
+  Exercice(typeEx, noEx, List<double> datas) {
+    this.typeEx = typeEx;
+    this.noEx = noEx;
+    this.datas = datas;
   }
 }
 
@@ -212,6 +228,235 @@ class GeoQuest extends StatelessWidget {
   }
 }
 
+class ExPage extends StatefulWidget {
+  const ExPage({Key? key}) : super(key: key);
+
+  @override
+  State<ExPage> createState() => _ExPageState();
+}
+
+class _ExPageState extends State<ExPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: GestureDetector(
+        onHorizontalDragUpdate: (details) {
+          // Note: Sensitivity is integer used when you don't want to mess up vertical drag
+          if (details.delta.dx > 0) {
+            Navigator.pop(context, true);
+          }
+        },
+        child: const Ex(),
+      ),
+      backgroundColor: nephertis,
+    );
+  }
+}
+
+class Ex extends StatefulWidget {
+  const Ex({Key? key}) : super(key: key);
+
+  @override
+  ExState createState() {
+    return ExState();
+  }
+}
+
+int getNoEx(int typeEx) {
+  int max = 0;
+  switch (typeEx) {
+    case 0:
+      max = 9;
+      break;
+    case 1:
+      max = 15;
+      break;
+    case 2:
+      max = 7;
+      break;
+  }
+  int noEx = 0; //Random().nextInt(max);
+  return noEx;
+}
+
+List<double> generateDatas(int typeEx, int noEx) {
+  List<double> res = [];
+  if (typeEx == 0) {
+    // perimetre
+    switch (noEx) {
+      case 0:
+        res.add(Random().nextInt(100) + 20.0);
+        break;
+      case 1:
+        break;
+      case 2:
+        break;
+      case 3:
+        break;
+      case 4:
+        break;
+      case 5:
+        break;
+      case 6:
+        break;
+      case 7:
+        break;
+    }
+  } else if (typeEx == 1) {
+    // aire/surface
+    switch (noEx) {
+      case 0:
+        break;
+      case 1:
+        break;
+      case 2:
+        break;
+      case 3:
+        break;
+      case 4:
+        break;
+      case 5:
+        break;
+      case 6:
+        break;
+      case 7:
+        break;
+    }
+  } else {
+    // volume
+    switch (noEx) {
+      case 0:
+        break;
+      case 1:
+        break;
+      case 2:
+        break;
+      case 3:
+        break;
+      case 4:
+        break;
+      case 5:
+        break;
+      case 6:
+        break;
+    }
+  }
+  return res;
+}
+
+class ExState extends State<Ex> {
+  // TODO : lire les données de la question
+  //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  String path = 'assets/images/ex1.png';
+  Exercice currentEx = player.currentEx;
+  //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  final resController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    if (currentEx.typeEx == -1) {
+      int typeEx = 0; //Random().nextInt(3);
+      int noEx = getNoEx(typeEx);
+      List<double> datasEx = generateDatas(typeEx, noEx);
+      currentEx = Exercice(typeEx, noEx, datasEx);
+      player.changeCurrentEx(currentEx);
+    }
+    String text = "";
+    if (currentEx.typeEx == 0) {
+      text = "PERIMETRE";
+    } else if (currentEx.typeEx == 1) {
+      text = "AIRE / SURFACE";
+    } else if (currentEx.typeEx == 2) {
+      text = "VOLUME";
+    }
+
+    return Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        Text(
+          'SCORE :' + player.score.toString(),
+          style: TextStyle(fontFamily: 'Chalk', fontSize: 15, color: clouds),
+        ),
+        Image.asset('assets/images/logo_s.png'),
+      ]),
+      Text(text,
+          style: TextStyle(fontFamily: "Chalk", color: clouds, fontSize: 30)),
+      getEx(player.currentEx),
+      Expanded(
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+            Text('REPONSE = ',
+                style: TextStyle(fontFamily: "Chalk", color: clouds)),
+            Fields.CustomTextFormField(
+                'Réponse',
+                "Entrez votre réponse",
+                Icons.border_color_outlined,
+                "Ce n'est pas la bonne réponse !",
+                resController),
+            Buttons.PrimaryButton('Valider', () {})
+          ])),
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Buttons.OptionButton(() {
+              Navigator.pop(context, true);
+            }),
+          )
+        ],
+      )
+    ]);
+  }
+}
+
+String getPath(int typeEx, int noEx) {
+  String path = "";
+  if (typeEx == 0) {
+    if (noEx == 0) {
+      path = 'assets/images/ex1.png';
+    }
+  }
+  return path;
+}
+
+List<Widget> getDatas(datas) {
+  List<Widget> res = [];
+  for (var data in datas) {
+    res.add(Buttons.SecondaryButton("r : " + data.toString(), () {}));
+  }
+  return res;
+}
+
+String getDescription(datas) {
+  String res = "Cercle de " + datas[0].toString() + " de rayon";
+  return res;
+}
+
+Widget getEx(Exercice ex) {
+  return Expanded(
+      child: Column(
+    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    children: [
+      Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10.0),
+            color: clouds,
+            border: Border.all(
+              color: was,
+              width: 3,
+            ),
+          ),
+          child: Image.asset(getPath(ex.typeEx, ex.noEx))),
+      Text(getDescription(ex.datas)),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: getDatas(ex.datas),
+      ),
+    ],
+  ));
+}
+
 class LeaderboardPage extends StatefulWidget {
   const LeaderboardPage({Key? key}) : super(key: key);
 
@@ -386,15 +631,16 @@ class HomeState extends State<Home> {
             ),
           ),
           Buttons.PrimaryButton("New Game", () {
+            player.currentEx = Exercice(-1, -1, []);
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const SignUpPage()),
+              MaterialPageRoute(builder: (context) => const ExPage()),
             );
           }),
           Buttons.SecondaryButton("Continue", () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const SignUpPage()),
+              MaterialPageRoute(builder: (context) => const ExPage()),
             );
           }),
           Buttons.SecondaryButton("Leaderboard", () {
@@ -574,11 +820,11 @@ class SignIn extends StatefulWidget {
 
 class SignInState extends State<SignIn> {
   final _formKey = GlobalKey<FormState>();
+  final cUsername = TextEditingController();
+  final cPassword = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    final cUsername = TextEditingController();
-    final cPassword = TextEditingController();
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
